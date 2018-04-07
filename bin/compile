@@ -127,9 +127,17 @@ BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
 
-# fix STACK variable if unset
-if [ -z "${STACK}" ]; then
-  STACK="heroku-16"
+# read in STACK version if file exists
+if [[ -f "$BUILD_DIR/.stack-version" ]];
+then
+  STACK=`read_var $BUILD_DIR/.stack-version`
+  echo "NOTE: Using Stack version override [$STACK]" | indent
+else
+  # fix STACK variable if unset
+
+  if [ -z "${STACK}" ]; then
+    STACK="heroku-16"
+  fi
 fi
 
 # ensure correct stack
@@ -151,6 +159,14 @@ if [[ -f "$BUILD_DIR/.r-version" ]]; then
   echo "NOTE: Using R version override [$R_VERSION]" | indent
 else
   R_VERSION="3.4.0"
+fi
+
+# read in R version if file exists
+if [[ -f "$BUILD_DIR/.r-buildpack-version" ]]; then
+  BUILD_PACK_VERSION =`read_var $BUILD_DIR/.r-buildpack-version`
+  echo "NOTE: Using buildpack version override [$BUILD_PACK_VERSION]" | indent
+else
+  BUILD_PACK_VERSION=${BUILD_PACK_VERSION:-latest}
 fi
 
 # environment
